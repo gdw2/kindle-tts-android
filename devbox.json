@@ -1,0 +1,59 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.18.4/.schema/devbox.schema.json",
+  "packages": [
+    "jdk@17",
+    "gradle@8.14.4",
+    "android-cli@latest",
+    "androidenv.androidPkgs.platform-tools@latest",
+    "libxkbcommon",
+    "libpulseaudio",
+    "alsa-lib",
+    "mesa",
+    "libGL",
+    "vulkan-loader",
+    "expat",
+    "dbus",
+    "libdrm",
+    "xorg.libX11@latest",
+    "xorg.libXext@latest",
+    "xorg.libXrender@latest",
+    "xorg.libXrandr@latest",
+    "xorg.libXi@latest",
+    "xorg.libXcursor@latest",
+    "xorg.libXfixes@latest",
+    "xorg.libXinerama@latest",
+    "xorg.libxkbfile@latest",
+    "xorg.libxcb@latest",
+    "pulseaudio@latest"
+  ],
+  "env": {
+    "ANDROID_HOME":     "$PWD/.android-sdk",
+    "ANDROID_SDK_ROOT": "$PWD/.android-sdk",
+    "DEVBOX_LIBS":      "$PWD/.devbox/nix/profile/default/lib"
+  },
+  "shell": {
+    "init_hook": [
+      "export LD_LIBRARY_PATH=\"$DEVBOX_LIBS:${LD_LIBRARY_PATH:-}\"",
+      "export PATH=\"$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH\""
+    ],
+    "scripts": {
+      "setup": [
+        "set -e",
+        "mkdir -p \"$ANDROID_HOME\"",
+        "android --sdk=\"$ANDROID_HOME\" sdk install cmdline-tools/latest",
+        "android --sdk=\"$ANDROID_HOME\" sdk install platform-tools",
+        "android --sdk=\"$ANDROID_HOME\" sdk install platforms/android-35",
+        "android --sdk=\"$ANDROID_HOME\" sdk install build-tools/35.0.0",
+        "android --sdk=\"$ANDROID_HOME\" sdk install emulator",
+        "android --sdk=\"$ANDROID_HOME\" sdk install system-images/android-35/google_apis/x86_64",
+        "echo no | \"$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager\" create avd -n \"${ANDROID_AVD:-kindle}\" -k \"system-images;android-35;google_apis;x86_64\" -d pixel_6 --force || true"
+      ],
+      "build":           "gradle assembleDebug",
+      "test":            "gradle testDebugUnitTest",
+      "connected-test":  "gradle connectedDebugAndroidTest",
+      "emulator":        "LD_LIBRARY_PATH=\"$DEVBOX_LIBS:${LD_LIBRARY_PATH:-}\" \"$ANDROID_HOME/emulator/emulator\" -avd ${ANDROID_AVD:-kindle} -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot",
+      "emulator-window": "LD_LIBRARY_PATH=\"$DEVBOX_LIBS:${LD_LIBRARY_PATH:-}\" \"$ANDROID_HOME/emulator/emulator\" -avd ${ANDROID_AVD:-kindle} -no-boot-anim -gpu swiftshader_indirect -no-snapshot",
+      "emulator-scrcpy": "LD_LIBRARY_PATH=\"$DEVBOX_LIBS:${LD_LIBRARY_PATH:-}\" \"$ANDROID_HOME/emulator/emulator\" -avd ${ANDROID_AVD:-kindle} -no-window -no-boot-anim -gpu swiftshader_indirect -no-snapshot"
+    }
+  }
+}

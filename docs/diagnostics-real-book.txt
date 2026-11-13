@@ -1,0 +1,42 @@
+Kindle TTS — real-book diagnostics (Dracula)
+
+Book: Dracula, Bram Stoker (public domain)
+Reader frame: top-level document, ~45 characters of chrome, 5–8 .kg-full-page-img images
+Capture: page images fetched as blob: URLs from the WebView and OCR'd on device with ML Kit
+
+Page-boundary comparison against Project Gutenberg #345 (Dracula)
+--------------------------------------------------------------
+Previous build:
+  page end:    "...Transylvania, Moldavia, and Bukovina, in the midst of the"
+  next start:  "some sort of imaginative whirlpool; if so my stay may be very..."
+  result:      1,033-character gap (Carpathian description, Bistritz, Ordnance Survey,
+               four nationalities, Attila passage) — the reported skip.
+
+Fixed build (one-screen page turn):
+  page end:    "...the horseshoe of the Carpathians, as if it were the centre of"
+  next start:  "some sort of imaginative whirlpool; if so my stay may be very..."
+  result:      contiguous; the full gap is present.
+  phrases found: Carpathian mountains, Bistritz, Szekelys, Attila, imaginative whirlpool.
+  OCR typo: "Ordnance" read as "Ordance"; the paragraph is not skipped.
+
+Page-boundary speech:
+  page 1 held: "When I asked him if" (incomplete trailing sentence)
+  page 2 merged: "When I asked him if he knew Count Dracula..." as one sentence.
+  No separate utterance at the page boundary.
+
+End of book:
+  reached the final page (page 333 of 333), flushed the held tail
+  ("material of which the record is composed, there is"), paused with
+  "End of chapter. Turn the page, then press Play."
+
+Other checks:
+  - Touch page turn while idle changed the page; the next Play OCR'd the new page.
+  - Screen-off page turn and OCR completed while the display was off.
+  - Clearing WebView cookies landed on Amazon's sign-in page; playback reported
+    "Amazon sign-in required."
+  - Library layout rendered after the WebView height workaround.
+  - Kindle reader top controls responded after safe-area insets (Library button and
+    the three-dot menu).
+
+This file is the captured real-book diagnostics; the in-app Dev > Copy report provides
+the live frame inventory and last page text for future selector repairs.

@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Long fixture book</title>
+    <style>
+        body { font-family: Georgia, serif; padding: 16px; line-height: 1.6; }
+        p { margin: 0 0 1em 0; }
+        #kr-next { position: fixed; right: 8px; bottom: 8px; }
+    </style>
+</head>
+<body>
+<main id="page"></main>
+<button id="kr-next" onclick="nextPage()">Next</button>
+<script>
+    var pages = [];
+    for (var i = 1; i <= 8; i++) {
+        pages.push(
+            '<p>Page ' + i + ' begins with a long sentence about the harbour, the tide, and the slow work of keeping a lamp lit through the night.</p>' +
+            '<p>The keeper counted the boats again, wrote the numbers in the green ledger, and listened to the wind change its mind.</p>' +
+            '<p>Every page carries its own small weather, its own list of names, and its own reason to keep reading until the chapter ends.</p>' +
+            '<p>This paragraph pads the page so that the speech queue has enough text to fetch the next page while the screen is dark.</p>'
+        );
+    }
+    var page = 0;
+    function render() {
+        document.getElementById('page').innerHTML = pages[page];
+        window.__pageIndex = page;
+    }
+    function nextPage() {
+        if (page < pages.length - 1) {
+            page++;
+            render();
+        }
+    }
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'ArrowRight' || event.key === 'PageDown') nextPage();
+    });
+    render();
+</script>
+</body>
+</html>

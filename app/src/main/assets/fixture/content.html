@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fixture book</title>
+    <style>
+        body { font-family: Georgia, serif; padding: 16px; line-height: 1.6; }
+        p { margin: 0 0 1em 0; }
+        #kr-next { position: fixed; right: 8px; bottom: 8px; }
+    </style>
+</head>
+<body>
+<main id="page"></main>
+<button id="kr-next" onclick="nextPage()">Next</button>
+<script>
+    var pages = [
+        '<p>The lighthouse keeper wrote every name in a green ledger. Nobody asked him why, and he never explained.</p>' +
+        '<p>On the first Tuesday of autumn a storm pulled the roof tiles loose, one by one, like a patient hand.</p>' +
+        '<p>He counted the boats that came home and the boats that did not, and he wrote both lists in the same ink.</p>',
+        '<p>By morning the sea had flattened into a sheet of tin. The keeper walked the shore and found a yellow crate.</p>' +
+        '<p>Inside were books wrapped in oilcloth, their pages swollen but legible. He carried them up the stairs.</p>' +
+        '<p>That winter he read aloud to the empty room, and the ledger gained a column he had never needed before.</p>'
+    ];
+    var page = 0;
+    function render() {
+        document.getElementById('page').innerHTML = pages[page];
+        window.__pageIndex = page;
+    }
+    function nextPage() {
+        if (page < pages.length - 1) {
+            page++;
+            render();
+        }
+    }
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'ArrowRight' || event.key === 'PageDown') nextPage();
+    });
+    render();
+</script>
+</body>
+</html>
