@@ -12,6 +12,20 @@ devbox run setup        # download Android SDK 35, build tools, emulator image
 devbox run build        # app/build/outputs/apk/debug/app-debug.apk
 ```
 
+### Releases
+
+Every push to any branch builds a signed release APK and publishes it as a GitHub release tagged `v<major>.<minor>.<patch>`, where the patch number is the highest existing `v*` tag plus one. The APK's `versionName` is the same number, so update checkers can compare versions. Push a tag to bump further: `git tag v0.2.0 && git push origin v0.2.0`.
+
+The signing key lives only in repository secrets, because an APK signed by a different key cannot be installed over the previous one. Create it once and keep a backup:
+
+```bash
+keytool -genkeypair -keystore release.keystore -alias kindle -keyalg RSA -keysize 2048 \
+  -validity 10000 -dname "CN=kindle-tts"
+base64 -w0 release.keystore   # paste into the KEYSTORE_BASE64 secret
+```
+
+Add the repository secrets `KEYSTORE_BASE64` plus `KEYSTORE_PASSWORD`, `KEY_ALIAS` (`kindle`), and `KEY_PASSWORD`. Losing the key means each install must be uninstalled before the next update.
+
 The emulator is optional:
 
 ```bash
@@ -21,9 +35,13 @@ devbox run emulator-window
 
 ## Use
 
+Add `https://github.com/gdw2/kindle-tts-android` in [Obtainium](https://github.com/ImranR98/Obtainium) to install each release APK. To install by hand:
+
 ```bash
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb install -r kindle-tts-<version>.apk   # from the latest release
 ```
+
+A locally built debug APK has a different signature, so uninstall it once before switching to a release build.
 
 Sign in to Amazon inside the app, open a book, and press **Play**. The notification keeps pause and stop available while the screen is off.
 

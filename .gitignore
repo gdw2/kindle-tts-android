@@ -11,3 +11,5 @@ captures/
 .android-sdk
 .sdk/
 .kotlin/
+release.keystore
+release-signing.properties
