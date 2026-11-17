@@ -116,35 +116,66 @@
       .sort(function (a, b) { return a.y - b.y; });
   }
 
+  function pageItems() {
+    return sortedPageImages().filter(function (item) { return item.h > 200; });
+  }
+
+  function currentPageItem(items) {
+    var current = null;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].y <= 0 && items[i].y + items[i].h > 0) current = items[i];
+    }
+    if (!current) {
+      for (var j = 0; j < items.length; j++) {
+        if (items[j].y >= 0) { current = items[j]; break; }
+      }
+    }
+    return current || items[items.length - 1] || null;
+  }
+
+  /**
+   * Kindle loads the next chapter's page images only after a real page turn, so
+   * clicking next is the only way past the last page of a chapter.
+   */
+  function turnToNextPage() {
+    var strategy = clickFirst(turnSelectors);
+    if (!strategy) strategy = pressArrowRight();
+    if (!strategy) strategy = clickRightMargin();
+    return strategy;
+  }
+
   function handleScrollNext(requestId) {
     try {
-      var items = sortedPageImages().filter(function (item) { return item.h > 200; });
+      var items = pageItems();
       if (!items.length) {
         post({ type: 'scrolled', requestId: requestId, frameId: frameId, error: 'no page images' });
         return;
       }
-      var current = null;
-      for (var i = 0; i < items.length; i++) {
-        if (items[i].y <= 0 && items[i].y + items[i].h > 0) current = items[i];
-      }
-      if (!current) {
-        for (var j = 0; j < items.length; j++) {
-          if (items[j].y >= 0) { current = items[j]; break; }
-        }
-      }
-      if (!current) current = items[items.length - 1];
+      var current = currentPageItem(items);
       // Advance exactly one visible page image. Using the next loaded image's
       // offset skips a screen when that image has not loaded yet.
       var step = Math.max(200, current.h || window.innerHeight);
       var before = current.img.src;
+      var beforeY = window.scrollY;
       window.scrollBy(0, step);
       setTimeout(function () {
+        var turned = null;
+        try {
+          var next = currentPageItem(pageItems());
+          var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+          if ((!next || next.img.src === before) && (window.scrollY === beforeY || atBottom)) {
+            turned = turnToNextPage();
+          }
+        } catch (e) {
+          /* a failed re-measure must not block the reply */
+        }
         post({
           type: 'scrolled',
           requestId: requestId,
           frameId: frameId,
           step: step,
-          before: before
+          before: before,
+          turned: turned
         });
       }, 500);
     } catch (e) {

@@ -13,8 +13,9 @@ import kotlin.math.abs
  * Kindle for Web draws each page as a full-page bitmap served from a blob URL.
  * The image is captured from inside the WebView (no OS screen capture), OCR'd
  * on device, and the text is handed to the existing playback queue. Advancing
- * scrolls the next page image to the top of the reader; the visible page
- * therefore leads the audio, which is expected.
+ * scrolls the next page image to the top of the reader and, at a chapter end,
+ * clicks the reader's next control; the visible page therefore leads the audio,
+ * which is expected.
  */
 class OcrPageSource : PageSource {
     private var currentSrc: String? = null
@@ -54,9 +55,11 @@ class OcrPageSource : PageSource {
         var info: PageInfo? = null
         var current: PageImageInfo? = null
         var attempts = 0
-        while (attempts < 3) {
+        // The bridge falls back to a real page turn at a chapter end, and the next
+        // chapter's page images take longer to load than a scroll within a chapter.
+        while (attempts < 7) {
             attempts++
-            kotlinx.coroutines.delay(500)
+            kotlinx.coroutines.delay(if (attempts == 1) 500 else 700)
             info = ReaderSession.pageInfo()
             current = info?.let { chooseCurrentPage(it.images) }
             if (current != null && current.src != before) break

@@ -35,5 +35,6 @@ Environment: Android emulator, API 35 (Google APIs), 1080x2400, Google TTS enabl
 | 29 | Page boundary does not pause mid-sentence | Pass — page 1 held "When I asked him if" and page 2 merged it into "When I asked him if he knew Count Dracula…" |
 | 30 | End of book boundary | Pass — reached the final page, flushed the held tail, and paused with "End of chapter." |
 | 31 | Real-book diagnostics report | Pass — captured in `docs/diagnostics-real-book.txt` |
+| 32 | Real book: reach a chapter end with the screen off; playback turns the page itself, keeps reading the next chapter without a pause, and does not repeat text | Pending — needs a real-book run |
 
 The final connected-test run uninstalls the app and clears its data; reinstall `app/build/outputs/apk/debug/app-debug.apk` and sign in afterward. The one open verification is tapping the notification actions from the actual lock screen (the action intents themselves pass the service test).

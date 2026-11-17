@@ -24,7 +24,7 @@ data class PlaybackUiState(
 
 /**
  * Owns the speech queue. It pulls pages ahead of playback, so audio never depends
- * on the visible page, and it pauses cleanly at a chapter boundary or on errors.
+ * on the visible page, and it pauses cleanly at the end of the book or on errors.
  *
  * All methods run on the supplied [scope] (the main thread in the app).
  */
@@ -224,7 +224,7 @@ class PlaybackController(
                 return
             }
             if (boundaryReached) {
-                pauseInternal(message = "End of chapter. Turn the page, then press Play.")
+                pauseInternal(message = "End of book.")
                 return
             }
         }
@@ -247,14 +247,14 @@ class PlaybackController(
                     if (added == 0) {
                         flushHeldTail()
                         boundaryReached = true
-                        _state.update { it.copy(message = "End of chapter") }
+                        _state.update { it.copy(message = "End of book") }
                     }
                     pump()
                 }
                 PageResult.Boundary -> {
                     flushHeldTail()
                     boundaryReached = true
-                    _state.update { it.copy(message = "End of chapter") }
+                    _state.update { it.copy(message = "End of book") }
                     pump()
                 }
                 is PageResult.SignIn -> {

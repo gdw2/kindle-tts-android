@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter turn fixture</title>
+  <style>
+    body { margin: 0; background: #fff; }
+    .kg-full-page-img img { display: block; width: 100%; }
+    #kr-next { position: fixed; right: 8px; bottom: 8px; width: 96px; height: 48px; }
+  </style>
+</head>
+<body>
+<!-- One page image with no next image below it: the end of a chapter on Kindle. -->
+<div class="kg-full-page-img">
+  <img id="page" alt="page"
+       src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='412' height='800'><rect width='412' height='800' fill='%23eeeeee'/></svg>">
+</div>
+<button id="kr-next" aria-label="Next page">Next</button>
+<script>
+  // Kindle loads the next chapter's page images only after a real page turn.
+  document.getElementById('kr-next').addEventListener('click', function () {
+    document.getElementById('page').src =
+      "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='412' height='800'><rect width='412' height='800' fill='%23dddddd'/></svg>";
+  });
+</script>
+</body>
+</html>

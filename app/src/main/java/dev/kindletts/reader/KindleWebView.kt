@@ -19,6 +19,7 @@ import androidx.webkit.WebViewAssetLoader
 const val KINDLE_URL = "https://read.amazon.com/"
 const val FIXTURE_URL = "https://appassets.androidplatform.net/assets/fixture/reader.html"
 const val FIXTURE_LONG_URL = "https://appassets.androidplatform.net/assets/fixture/long-reader.html"
+const val FIXTURE_CHAPTER_URL = "https://appassets.androidplatform.net/assets/fixture/chapter.html"
 
 private val AMAZON_HOSTS = setOf(
     "amazon.com",

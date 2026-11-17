@@ -91,7 +91,7 @@ class PlaybackControllerTest {
         drain(engine, controller)
 
         assertEquals(PlaybackStatus.PAUSED, controller.state.value.status)
-        assertTrue(controller.state.value.message.orEmpty().contains("End of chapter"))
+        assertTrue(controller.state.value.message.orEmpty().contains("End of book"))
         assertEquals(listOf("One.", "Two."), engine.spoken.map { it.text })
     }
 
@@ -152,7 +152,7 @@ class PlaybackControllerTest {
         drain(engine, controller)
 
         assertEquals(PlaybackStatus.PAUSED, controller.state.value.status)
-        assertTrue(controller.state.value.message.orEmpty().contains("End of chapter"))
+        assertTrue(controller.state.value.message.orEmpty().contains("End of book"))
         assertEquals(1, controller.state.value.pageNumber)
     }
 
@@ -185,7 +185,7 @@ class PlaybackControllerTest {
         drain(engine, controller)
 
         assertTrue(engine.spoken.map { it.text }.contains("Alpha beta gamma"))
-        assertTrue(controller.state.value.message.orEmpty().contains("End of chapter"))
+        assertTrue(controller.state.value.message.orEmpty().contains("End of book"))
     }
 
     private fun TestScope.drain(engine: FakeEngine, controller: PlaybackController) {

@@ -87,11 +87,13 @@ The turn chain, in order:
 3. Click near the right margin at mid-height.
 4. After each attempt wait 900 ms and extract again.
 
-`changed` compares the new page with the last extracted text. The script updates `lastExtractedText` on every turn, including failed ones, so a duplicate page cannot be reported as new. Native playback also strips overlapping text between pages and treats a page that adds no new sentences as a chapter boundary.
+`changed` compares the new page with the last extracted text. The script updates `lastExtractedText` on every turn, including failed ones, so a duplicate page cannot be reported as new. Native playback also strips overlapping text between pages and treats a page that adds no new sentences as the end of the book.
 
 ## Page turns on the image reader
 
-The OCR source advances by scrolling the next page image to the top of the reader: `scrollNext` computes the current page (the image spanning the viewport top), finds the next page image, and scrolls the window by that image's offset. The visible page therefore leads the audio by the read-ahead buffer, which is expected. A scroll that leaves the same current image is treated as the end of the book. Kindle's hidden sign-in iframes no longer mark the session expired.
+The OCR source advances by scrolling the next page image to the top of the reader: `scrollNext` computes the current page (the image spanning the viewport top), finds the next page image, and scrolls the window by that image's offset. The visible page therefore leads the audio by the read-ahead buffer, which is expected.
+
+Kindle loads the next chapter's page images only after a real page turn, so when the scroll cannot reach a new page image the same `scrollNext` call runs the page-turn chain below and reports the strategy as `turned` in the `scrolled` reply. Native acquisition then polls for the next chapter's page images. A scroll and a turn that both leave the same current image mean the end of the book. Kindle's hidden sign-in iframes no longer mark the session expired.
 
 ## Session expiry
 
@@ -112,8 +114,8 @@ The WebView on some Android builds reports a zero-height CSS viewport (`100vh` i
 
 ## Tests
 
-- `ReaderSessionInstrumentedTest` loads `assets/fixture/reader.html` through `WebViewAssetLoader`, verifies extraction, two consecutive page turns, and the chapter boundary.
+- `ReaderSessionInstrumentedTest` loads `assets/fixture/reader.html` through `WebViewAssetLoader`, verifies extraction, two consecutive page turns, and the chapter boundary; it also loads `assets/fixture/chapter.html` and verifies that a scroll with no next page image falls back to the page control.
 - `PageOcrInstrumentedTest` draws a known line on a bitmap and verifies ML Kit reads it on the device.
 - `OcrPageSourceTest` covers current-page selection and the last-page label.
-- `PlaybackControllerTest` covers the queue, read-ahead, overlap dedupe, boundary pause, and page errors.
+- `PlaybackControllerTest` covers the queue, read-ahead, overlap dedupe, end-of-book pause, and page errors.
 - `SpeechEngineInstrumentedTest` speaks one sentence with the platform engine (skipped when the device has no engine).

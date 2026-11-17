@@ -4,10 +4,12 @@ import android.os.SystemClock
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import dev.kindletts.reader.FIXTURE_CHAPTER_URL
 import dev.kindletts.reader.PageResult
 import dev.kindletts.reader.ReaderSession
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,6 +54,36 @@ class ReaderSessionInstrumentedTest {
             val second = runBlocking { ReaderSession.turnPage() }
             assertFalse("the last fixture page must report a boundary", second.changed)
         }
+    }
+
+    @Test
+    fun imageReaderFallsBackToThePageControlAtAChapterEnd() {
+        ActivityScenario.launch(FixtureActivity::class.java).use {
+            waitForContentFrame()
+            InstrumentationRegistry.getInstrumentation().runOnMainSync {
+                ReaderSession.load(FIXTURE_CHAPTER_URL)
+            }
+            val before = waitForPageImage()
+
+            assertTrue(runBlocking { ReaderSession.scrollNextPage() })
+            val after = waitForPageImage(notThis = before)
+
+            assertNotEquals("the chapter fixture must turn to its next page image", before, after)
+        }
+    }
+
+    private fun waitForPageImage(notThis: String? = null): String {
+        val deadline = SystemClock.uptimeMillis() + 20_000
+        while (SystemClock.uptimeMillis() < deadline) {
+            val src = runBlocking { ReaderSession.pageInfo() }
+                ?.images
+                ?.firstOrNull { it.height > 200f }
+                ?.src
+            if (src != null && src != notThis) return src
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            SystemClock.sleep(200)
+        }
+        throw AssertionError("No page image appeared: ${ReaderSession.diagnosticsReport()}")
     }
 
     private fun waitForContentFrame() {

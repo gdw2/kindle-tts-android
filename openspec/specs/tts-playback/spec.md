@@ -66,14 +66,6 @@ The app SHALL keep audio playing while the screen is off or the app is not in th
 - **WHEN** the user taps pause or stop in the notification while the screen is off
 - **THEN** the corresponding action takes effect without unlocking the device
 
-### Requirement: Playback pauses at a chapter boundary
-
-When no further text can be acquired without leaving the current chapter, the app SHALL stop acquiring text, pause playback, and tell the user that the chapter ended.
-
-#### Scenario: Chapter end reached
-- **WHEN** the queue drains and the current chapter has no next page
-- **THEN** playback pauses, no text is repeated, and the user is told the chapter ended
-
 ### Requirement: Interruptions are handled
 
 Playback SHALL pause when another app takes audio focus, such as an incoming call, and SHALL NOT resume automatically until the user asks.
@@ -89,3 +81,15 @@ If no speech engine or suitable voice is available, the app SHALL report the pro
 #### Scenario: No TTS engine
 - **WHEN** playback is requested on a device without a usable speech engine
 - **THEN** the app shows an explanatory error and does not crash or hang
+
+### Requirement: Playback spans chapters
+
+The app SHALL keep acquiring text across chapter boundaries without user interaction and SHALL pause only when no further text can be acquired.
+
+#### Scenario: Chapter end reached
+- **WHEN** the queue drains and the current chapter has no next page
+- **THEN** the app turns to the next chapter, keeps speaking without pausing, and repeats no text
+
+#### Scenario: End of book reached
+- **WHEN** no page turn produces new readable text
+- **THEN** playback pauses, no text is repeated, and the user is told the book ended
